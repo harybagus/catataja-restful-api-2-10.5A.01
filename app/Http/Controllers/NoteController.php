@@ -47,8 +47,15 @@ class NoteController extends Controller
     {
         $user = Auth::user();
 
-        $pinnedNotes = Note::where("pinned", "true")->where("user_id", $user->id)->get();
-        $unPinnedNotes = Note::where("pinned", "false")->where("user_id", $user->id)->get();
+        $pinnedNotes = Note::where("pinned", "true")
+            ->where("user_id", $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $unPinnedNotes = Note::where("pinned", "false")
+            ->where("user_id", $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         if ($pinnedNotes->isEmpty() && $unPinnedNotes->isEmpty()) {
             throw new HttpResponseException(response()->json([
@@ -79,7 +86,7 @@ class NoteController extends Controller
             });
         }
 
-        $notes = $query->get();
+        $notes = $query->orderBy('created_at', 'desc')->get();
 
         if ($notes->isEmpty()) {
             throw new HttpResponseException(response()->json([
@@ -93,8 +100,6 @@ class NoteController extends Controller
 
         return new NoteCollection($notes);
     }
-
-
 
     public function update(int $id, NoteUpdateRequest $request): NoteResource
     {
